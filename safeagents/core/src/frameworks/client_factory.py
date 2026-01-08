@@ -97,7 +97,6 @@ class ClientFactory:
         from datetime import datetime
         from openai import AsyncOpenAI
         from agents import set_default_openai_api, set_default_openai_client, set_tracing_disabled
-        from ....logger import logger
 
         # Set up jsonl log file path
         log_dir = os.getenv("OPENAI_LOG_DIR", ".")
@@ -116,8 +115,8 @@ class ClientFactory:
                     }
                     with open(log_file, "a", encoding="utf-8") as f:
                         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
-                except Exception as e:
-                    logger.debug(f"Could not log request body: {e}")
+                except Exception:
+                    pass  # Silently ignore logging errors
 
         async def log_response(response: httpx.Response):
             """Log incoming response from OpenAI API."""
@@ -131,8 +130,8 @@ class ClientFactory:
                     }
                     with open(log_file, "a", encoding="utf-8") as f:
                         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
-                except Exception as e:
-                    logger.debug(f"Could not log response body: {e}")
+                except Exception:
+                    pass  # Silently ignore logging errors
 
         http_client = httpx.AsyncClient(
             event_hooks={
