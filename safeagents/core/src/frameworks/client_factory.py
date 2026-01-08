@@ -91,11 +91,41 @@ class ClientFactory:
         Returns:
             AsyncOpenAI instance
         """
+        import httpx
+        import json
         from openai import AsyncOpenAI
         from agents import set_default_openai_api, set_default_openai_client, set_tracing_disabled
+        from ....logger import logger
+
+        # Create httpx client with event hooks for logging
+        async def log_request(request: httpx.Request):
+            """Log outgoing request to OpenAI API."""
+            if "/chat/completions" in str(request.url):
+                try:
+                    body = json.loads(request.content.decode())
+                    logger.info(f"OpenAI API Request: {json.dumps(body, indent=2, ensure_ascii=False)}")
+                except Exception as e:
+                    logger.debug(f"Could not log request body: {e}")
+
+        async def log_response(response: httpx.Response):
+            """Log incoming response from OpenAI API."""
+            if "/chat/completions" in str(response.url):
+                try:
+                    body = json.loads(response.content.decode())
+                    logger.info(f"OpenAI API Response: {json.dumps(body, indent=2, ensure_ascii=False)}")
+                except Exception as e:
+                    logger.debug(f"Could not log response body: {e}")
+
+        http_client = httpx.AsyncClient(
+            event_hooks={
+                "request": [log_request],
+                "response": [log_response]
+            }
+        )
 
         client = AsyncOpenAI(
             api_key=llm_config["api_key"],
+            http_client=http_client
         )
 
         # Set global defaults for OpenAI Agents framework
