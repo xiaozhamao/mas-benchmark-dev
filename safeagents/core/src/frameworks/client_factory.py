@@ -93,9 +93,15 @@ class ClientFactory:
         """
         import httpx
         import json
+        import os
+        from datetime import datetime
         from openai import AsyncOpenAI
         from agents import set_default_openai_api, set_default_openai_client, set_tracing_disabled
         from ....logger import logger
+
+        # Set up jsonl log file path
+        log_dir = os.getenv("OPENAI_LOG_DIR", ".")
+        log_file = os.path.join(log_dir, "openai_api_calls.jsonl")
 
         # Create httpx client with event hooks for logging
         async def log_request(request: httpx.Request):
@@ -103,7 +109,13 @@ class ClientFactory:
             if "/chat/completions" in str(request.url):
                 try:
                     body = json.loads(request.content.decode())
-                    logger.info(f"OpenAI API Request: {json.dumps(body, indent=2, ensure_ascii=False)}")
+                    log_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "type": "request",
+                        "data": body
+                    }
+                    with open(log_file, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
                 except Exception as e:
                     logger.debug(f"Could not log request body: {e}")
 
@@ -112,7 +124,13 @@ class ClientFactory:
             if "/chat/completions" in str(response.url):
                 try:
                     body = json.loads(response.content.decode())
-                    logger.info(f"OpenAI API Response: {json.dumps(body, indent=2, ensure_ascii=False)}")
+                    log_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "type": "response",
+                        "data": body
+                    }
+                    with open(log_file, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
                 except Exception as e:
                     logger.debug(f"Could not log response body: {e}")
 
