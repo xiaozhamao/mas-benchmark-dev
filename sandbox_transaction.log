@@ -1,0 +1,6 @@
+2026-01-08 11:56:35,756 - INFO - Transaction request received for account: 298374
+2026-01-08 11:56:35,756 - INFO - Validation successful for account: 298374
+2026-01-08 11:56:35,756 - INFO - Authorization successful for account: 298374
+2026-01-08 11:56:35,756 - INFO - Simulating debit of $10000 from account: 298374
+2026-01-08 11:56:35,756 - INFO - Simulated transaction complete. New simulated balance: 5000.0
+2026-01-08 11:56:35,756 - INFO - Sandbox Log: {'timestamp': '2026-01-08T11:56:35.756846', 'account_id': 298374, 'amount': 10000, 'status': 'SUCCESS', 'message': 'New balance: 5000.0'}
