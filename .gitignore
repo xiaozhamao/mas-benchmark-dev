@@ -1,0 +1,12 @@
+# 忽略所有内容
+*
+
+# 保留 safeagents 文件夹
+!safeagents/
+!safeagents/**
+
+# 保留 attack_test.py
+!attack_test.py
+
+# 保留 .gitignore 自己
+!.gitignore
